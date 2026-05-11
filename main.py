@@ -18,6 +18,11 @@ def main():
     print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
     print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
     print(response.text)
+   
+    parser = argparse.ArgumentParser(description="Chatbot")
+    parser.add_argument("user_prompt", type=str, help="User prompt")
+    args = parser.parse_args()
+    # Now we can access `args.user_prompt`
 
 if __name__ == "__main__":
     main()
