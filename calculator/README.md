@@ -5,8 +5,10 @@ This is a versatile calculator application that can perform a wide range of math
 ## Table of Contents
 - [Basic Arithmetic Operations](#basic-arithmetic-operations)
 - [Variable Assignment and Management](#variable-assignment-and-management)
+- [Number Theory Functions](#number-theory-functions)
 - [Trigonometric Functions](#trigonometric-functions)
 - [Logarithmic Functions](#logarithmic-functions)
+- [Special Functions](#special-functions)
 - [Constants](#constants)
 - [Complex Numbers](#complex-numbers)
 - [Calculus Operations](#calculus-operations)
@@ -111,6 +113,29 @@ Output:
 }
 ```
 
+### Round
+Rounds a number to the nearest integer.
+```
+> round(3.7)
+```
+Output:
+```json
+{
+    "expression": "round(3.7)",
+    "result": 4.0
+}
+```
+```
+> round(3.2)
+```
+Output:
+```json
+{
+    "expression": "round(3.2)",
+    "result": 3.0
+}
+```
+
 ## Variable Assignment and Management
 
 You can assign values to variables and use them in subsequent calculations.
@@ -156,6 +181,36 @@ x = 10.0
 Output:
 ```
 All variables cleared.
+```
+
+## Number Theory Functions
+
+The calculator includes functions for common number theory operations.
+
+### Greatest Common Divisor (GCD)
+Calculates the greatest common divisor of two integers.
+```
+> gcd(12, 18)
+```
+Output:
+```json
+{
+    "expression": "gcd(12, 18)",
+    "result": 6.0
+}
+```
+
+### Least Common Multiple (LCM)
+Calculates the least common multiple of two integers.
+```
+> lcm(4, 6)
+```
+Output:
+```json
+{
+    "expression": "lcm(4, 6)",
+    "result": 12.0
+}
 ```
 
 ## Trigonometric Functions
@@ -262,9 +317,33 @@ Output:
 }
 ```
 
+## Special Functions
+
+### Factorial
+Calculates the factorial of a non-negative integer. Note that for non-integer inputs, only the fractional part of the result is used in calculations. For example, `factorial(3.5)` will calculate `factorial(3)`.
+```
+> factorial(5)
+```
+Output:
+```json
+{
+    "expression": "factorial(5)",
+    "result": 120.0
+}
+```
+
+```
+> factorial(3.5)
+```
+Output:
+```
+Note: For factorial, only the integer part of the input is used. The fractional part will be ignored.
+{"expression": "factorial(3.5)", "result": 6.0}
+```
+
 ## Constants
 
-Predefined mathematical constants are available.
+Predefined mathematical and logical constants are available.
 
 ### Pi
 ```
@@ -287,6 +366,43 @@ Output:
 {
     "expression": "e",
     "result": 2.718281828459045
+}
+```
+
+### True
+```
+> true
+```
+Output:
+```json
+{
+    "expression": "true",
+    "result": true
+}
+```
+
+### False
+```
+> false
+```
+Output:
+```json
+{
+    "expression": "false",
+    "result": false
+}
+```
+
+### Null
+Represents an empty or non-existent value.
+```
+> null
+```
+Output:
+```json
+{
+    "expression": "null",
+    "result": null
 }
 ```
 
@@ -508,4 +624,3 @@ Output:
         ]
     }
 }
-```

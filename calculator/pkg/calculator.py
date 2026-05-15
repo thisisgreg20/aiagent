@@ -46,6 +46,9 @@ class Calculator:
             "factorial": math.factorial, # Added factorial
             "erf": math.erf, # Added erf
             "erfc": math.erfc, # Added erfc
+            "gcd": math.gcd, # Added gcd
+            "lcm": math.lcm, # Added lcm
+            "remainder": math.remainder, # Added remainder
         }
         self.constants = {
             "pi": math.pi,
@@ -101,14 +104,10 @@ class Calculator:
             else:
                 raise ValueError(f"Invalid assignment: {expression}")
 
-        # Replace constants with their values before tokenization
-        for const, value in self.constants.items():
-            expression = re.sub(r'\b{}\b'.format(const), str(value), expression)
-        
         # Update regex to include function names, and handle them as tokens
         # Variable names are handled in _evaluate_infix
         # Removed the optional minus from number regex to handle unary minus explicitly
-        token_pattern = r'\b(?:sin|cos|tan|sqrt|log|abs|ceil|floor|round|exp|log10|degrees|radians|atan2|hypot|trunc|fmod|modf|copysign|gamma|lgamma|factorial|erf|erfc)\b|\d+\.?\d*|[+\-*/()%^()]|[a-zA-Z_][a-zA-Z0-9_]*|\S+'
+        token_pattern = r'\b(?:sin|cos|tan|sqrt|log|abs|ceil|floor|round|exp|log10|degrees|radians|atan2|hypot|trunc|fmod|modf|copysign|gamma|lgamma|factorial|erf|erfc|gcd|lcm|remainder|pi|e|tau|inf|nan)\b|\d+\.?\d*|[+*/()%^\-]|[,]|[a-zA-Z_][a-zA-Z0-9_]*|\S+'
 
         tokens = re.findall(token_pattern, expression)
         tokens = [token.strip() for token in tokens if token.strip()]
@@ -123,14 +122,14 @@ class Calculator:
         operators = []
         
         # List of functions that require integer arguments
-        integer_functions = ["factorial"]
+        integer_functions = ["factorial", "gcd", "lcm"]
         
         # Process tokens to handle unary minus
         processed_tokens = []
         i = 0
         while i < len(tokens):
             token = tokens[i]
-            if token == '-' and (i == 0 or tokens[i-1] in ['('] + list(self.operators.keys())):
+            if token == '-' and (i == 0 or tokens[i-1] in ['('] + list(self.operators.keys()) or tokens[i-1] in self.functions):
                 # This is a unary minus
                 if i + 1 < len(tokens):
                     next_token = tokens[i+1]
@@ -158,13 +157,16 @@ class Calculator:
                 if not operators or operators[-1] != "(":
                     raise ValueError("Mismatched parentheses")
                 operators.pop()  # Pop the '('
+            elif token == ",": # Handle comma as an argument separator
+                while operators and operators[-1] != "(":
+                    self._apply_operator(operators, values, integer_functions)
             elif token in self.operators:
-                while (
-                    operators
-                    and operators[-1] in self.operators
-                    and self.precedence[operators[-1]] >= self.precedence[token]
-                    and (token != "^" or self.precedence[operators[-1]] > self.precedence[token]) 
-                ):
+                while (\
+                    operators\
+                    and operators[-1] in self.operators\
+                    and self.precedence[operators[-1]] >= self.precedence[token]\
+                    and (token != "^" or self.precedence[operators[-1]] > self.precedence[token]) \
+                ):\
                     self._apply_operator(operators, values, integer_functions)
                 operators.append(token)
             elif token in self.functions: # Handle functions
@@ -177,6 +179,8 @@ class Calculator:
                     # Check if it's a variable
                     if token in self.variables: 
                         values.append(float(self.variables[token]))
+                    elif token in self.constants: # Check if it's a constant
+                        values.append(float(self.constants[token]))
                     else:
                         # If it's none of the above, it's an invalid token
                         raise ValueError(f"Invalid token or undefined variable: {token}")
@@ -197,18 +201,23 @@ class Calculator:
 
         operator = operators.pop()
         if operator in self.functions: # If it's a function, it only takes one operand
-            if operator in ["atan2", "hypot", "fmod", "modf"]: # These functions take two arguments
+            if operator in ["atan2", "hypot", "fmod", "gcd", "lcm", "remainder"]: # These functions take two arguments
                 if len(values) < 2:
                     raise ValueError(f"not enough operands for function {operator}")
                 b = values.pop()
                 a = values.pop()
-                # modf returns a tuple (fractional, integral), so we need to handle it.
-                # For simplicity, we'll return the fractional part as the primary result.
-                if operator == "modf":
-                    fractional, integral = self.functions[operator](a)
-                    values.append(fractional)
-                else:
-                    values.append(self.functions[operator](a, b))
+                # Convert to int if the function requires it (e.g., gcd, lcm)
+                if operator in integer_functions:
+                    a = int(a)
+                    b = int(b)
+                values.append(self.functions[operator](a, b))
+            elif operator == "modf": # Special handling for modf
+                if len(values) < 1:
+                    raise ValueError(f"not enough operands for function {operator}")
+                a = values.pop()
+                fractional, integral = self.functions[operator](a)
+                print(f"Note: modf returns (fractional, integral). Only the fractional part ({fractional}) is used in calculations.")
+                values.append(fractional)
             else: # All other functions take one argument
                 if len(values) < 1:
                     raise ValueError(f"not enough operands for function {operator}")
