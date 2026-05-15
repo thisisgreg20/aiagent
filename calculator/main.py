@@ -12,6 +12,13 @@ def main():
         # Interactive mode
         print("Calculator App - Interactive Mode")
         print("Enter 'exit' or 'quit' to end the session.")
+        print("Available functions:")
+        print("  - Basic arithmetic operations: +, -, *, /, %")
+        print("  - Variable assignment: e.g., x = 10, my_var = 20")
+        print("  - Supported functions: sin(), cos(), tan(), sqrt(), log(), exp(), abs(), round()")
+        print("  - 'list_vars': List all defined variables.")
+        print("  - 'clear_vars': Clear all defined variables.")
+        print("  - Pre-defined constants: pi, e")
         while True:
             try:
                 expression = input("> ")
